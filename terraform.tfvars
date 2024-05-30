@@ -3,3 +3,4 @@
 
 project_id = "k8s-cluster-424210"
 region     = "europe-central2"
+zone       = "europe-central2-c"
