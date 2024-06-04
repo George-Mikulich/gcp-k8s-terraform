@@ -17,10 +17,6 @@ variable "gke_num_nodes" {
 }
 
 # GKE cluster
-data "google_container_engine_versions" "gke_version" {
-  location       = var.zone
-  version_prefix = "1.27."
-}
 
 resource "google_container_cluster" "primary" {
   name     = "${var.project_id}-gke"
@@ -32,19 +28,17 @@ resource "google_container_cluster" "primary" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  node_config {
-    disk_size_gb = 50
-    tags         = ["gke-node", "${var.project_id}-gke"]
-  }
-
   network    = google_compute_network.vpc.name
   subnetwork = google_compute_subnetwork.subnet.name
 
-  private_cluster_config {
-    master_ipv4_cidr_block  = "172.16.0.0/28"
-    enable_private_endpoint = true
-    enable_private_nodes    = true
-  }
+  # private_cluster_config {
+  #   master_ipv4_cidr_block  = "172.16.0.0/28"
+  #   enable_private_endpoint = false
+  #   enable_private_nodes    = true
+  #   master_global_access_config {
+  #     enabled = true
+  #   }
+  # }
   ip_allocation_policy {
   }
   master_authorized_networks_config {
@@ -77,6 +71,9 @@ resource "google_container_node_pool" "primary_nodes" {
       disable-legacy-endpoints = "true"
     }
     disk_size_gb = 50
+  }
+  network_config {
+    enable_private_nodes = true
   }
 }
 
