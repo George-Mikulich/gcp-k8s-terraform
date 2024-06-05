@@ -17,10 +17,6 @@ variable "gke_num_nodes" {
 }
 
 # GKE cluster
-data "google_container_engine_versions" "gke_version" {
-  location       = var.zone
-  version_prefix = "1.27."
-}
 
 resource "google_container_cluster" "primary" {
   name     = "${var.project_id}-gke"
@@ -32,36 +28,32 @@ resource "google_container_cluster" "primary" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  node_config {
-    disk_size_gb = 50
-    tags         = ["gke-node", "${var.project_id}-gke"]
-  }
-
   network    = google_compute_network.vpc.name
   subnetwork = google_compute_subnetwork.subnet.name
 
-  cluster_autoscaling {
-    enabled = true
-    resource_limits {
-      resource_type = "cpu"
-      minimum       = 1
-      maximum       = 1
-    }
-    resource_limits {
-      resource_type = "memory"
-      minimum       = 7
-      maximum       = 50
-    }
+  # private_cluster_config {
+  #   master_ipv4_cidr_block  = "172.16.0.0/28"
+  #   enable_private_endpoint = false
+  #   master_global_access_config {
+  #     enabled = true
+  #   }
+  # }
+  ip_allocation_policy {
   }
+  # master_authorized_networks_config {
+  #   cidr_blocks {
+  #     cidr_block = "0.0.0.0/0"
+  #   }
+  # }
 }
 
-# Separately Managed Node Pool
+# Private Node Pool
 resource "google_container_node_pool" "primary_nodes" {
   name     = google_container_cluster.primary.name
   location = var.zone
   cluster  = google_container_cluster.primary.name
 
-  version    = "1.28.8-gke.1095000"
+  version    = "1.28.9-gke.1000000"
   node_count = var.gke_num_nodes
 
   node_config {
@@ -81,6 +73,42 @@ resource "google_container_node_pool" "primary_nodes" {
       disable-legacy-endpoints = "true"
     }
     disk_size_gb = 50
+  }
+  network_config {
+    enable_private_nodes = true
+  }
+}
+
+# Public Node Pool
+
+resource "google_container_node_pool" "public_nodes" {
+  name     = "k8s-cluster-424210-gke-pb"
+  location = var.zone
+  cluster  = google_container_cluster.primary.name
+
+  version    = "1.28.9-gke.1000000"
+  node_count = 1
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    labels = {
+      env = var.project_id
+    }
+
+    # preemptible  = true
+    machine_type = "n1-standard-1"
+    tags         = ["gke-node", "${var.project_id}-gke"]
+    metadata = {
+      disable-legacy-endpoints = "true"
+    }
+    disk_size_gb = 50
+  }
+  network_config {
+    enable_private_nodes = false
   }
 }
 
