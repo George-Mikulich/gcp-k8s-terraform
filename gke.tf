@@ -34,24 +34,26 @@ resource "google_container_cluster" "primary" {
   # private_cluster_config {
   #   master_ipv4_cidr_block  = "172.16.0.0/28"
   #   enable_private_endpoint = false
-  #   enable_private_nodes    = true
   #   master_global_access_config {
   #     enabled = true
   #   }
   # }
   ip_allocation_policy {
   }
-  master_authorized_networks_config {
-  }
+  # master_authorized_networks_config {
+  #   cidr_blocks {
+  #     cidr_block = "0.0.0.0/0"
+  #   }
+  # }
 }
 
-# Separately Managed Node Pool
+# Private Node Pool
 resource "google_container_node_pool" "primary_nodes" {
   name     = google_container_cluster.primary.name
   location = var.zone
   cluster  = google_container_cluster.primary.name
 
-  version    = "1.28.8-gke.1095000"
+  version    = "1.28.9-gke.1000000"
   node_count = var.gke_num_nodes
 
   node_config {
@@ -74,6 +76,39 @@ resource "google_container_node_pool" "primary_nodes" {
   }
   network_config {
     enable_private_nodes = true
+  }
+}
+
+# Public Node Pool
+
+resource "google_container_node_pool" "public_nodes" {
+  name     = "k8s-cluster-424210-gke-pb"
+  location = var.zone
+  cluster  = google_container_cluster.primary.name
+
+  version    = "1.28.9-gke.1000000"
+  node_count = 1
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    labels = {
+      env = var.project_id
+    }
+
+    # preemptible  = true
+    machine_type = "n1-standard-1"
+    tags         = ["gke-node", "${var.project_id}-gke"]
+    metadata = {
+      disable-legacy-endpoints = "true"
+    }
+    disk_size_gb = 50
+  }
+  network_config {
+    enable_private_nodes = false
   }
 }
 
