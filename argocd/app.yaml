@@ -1,14 +1,12 @@
 server:
   additionalApplications:
-   - name: cluster-config
-     namespace: argocd
+   - name: flask-app
+     namespace: default
      project: default
      source:
        repoURL: https://github.com/George-Mikulich/gcp-k8s-terraform
        targetRevision: feature/argocd-terraform
        path: argocd/manifests
-       directory:
-         recurse: true
      destination:
        server: https://kubernetes.default.svc
      syncPolicy:
