@@ -1,18 +1,15 @@
-server:
-  additionalApplications:
-   - name: flask-app
-     namespace: default
-     project: default
-     source:
-       repoURL: https://github.com/George-Mikulich/gcp-k8s-terraform
-       targetRevision: feature/argocd-terraform
-       path: argocd/manifests
-       helm:
-         valueFiles:
-           - values.yaml
-     destination:
-       server: https://kubernetes.default.svc
-     syncPolicy:
-       automated:
-         prune: false
-         selfHeal: false
+applications:
+  flask-app:
+    namespace: argocd
+    project: default
+    source:
+      repoURL: https://github.com/George-Mikulich/gcp-k8s-terraform
+      targetRevision: feature/argocd-terraform
+      path: argocd/manifests
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: default
+    syncPolicy:
+      automated:
+        prune: false
+        selfHeal: false
