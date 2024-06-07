@@ -111,7 +111,7 @@ resource "google_compute_instance" "vpn-server" {
     network    = google_compute_network.vpc-vpn.name
     subnetwork = google_compute_subnetwork.vpn-subnet.id
     access_config {
-      nat_ip = "34.118.36.183"
+      #nat_ip = "34.118.36.183"
     }
   }
 }

@@ -3,12 +3,104 @@ applications:
     namespace: argocd
     project: default
     source:
-      repoURL: https://github.com/George-Mikulich/gcp-k8s-terraform
-      targetRevision: feature/argocd-terraform
-      path: argocd/manifests
+      repoURL: https://github.com/George-Mikulich/helm-chart
+      targetRevision: HEAD
+      path: app
     destination:
       server: https://kubernetes.default.svc
       namespace: default
+    syncPolicy:
+      automated:
+        prune: false
+        selfHeal: false
+
+  istio:
+    namespace: argocd
+    project: default
+    source:
+      repoURL: https://github.com/istio/istio
+      targetRevision: HEAD
+      path: manifests/charts/base
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: istio-system
+    syncPolicy:
+      automated:
+        prune: false
+        selfHeal: false
+      syncOptions:
+      - CreateNamespace=true
+
+  istiod:
+    namespace: argocd
+    project: default
+    source:
+      repoURL: https://github.com/istio/istio
+      targetRevision: HEAD
+      path: manifests/charts/istio-control/istio-discovery
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: istio-system
+    syncPolicy:
+      automated:
+        prune: false
+        selfHeal: false
+
+  istio-operator:
+    namespace: argocd
+    project: default
+    source:
+      repoURL: https://github.com/istio/istio
+      targetRevision: HEAD
+      path: manifests/charts/istio-operator
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: istio-system
+    syncPolicy:
+      automated:
+        prune: false
+        selfHeal: false
+
+  istio-ingress-gateway:
+    namespace: argocd
+    project: default
+    source:
+      repoURL: https://github.com/istio/istio
+      targetRevision: HEAD
+      path: manifests/charts/gateways/istio-ingress
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: istio-system
+    syncPolicy:
+      automated:
+        prune: false
+        selfHeal: false
+
+  istio-egress-gateway:
+    namespace: argocd
+    project: default
+    source:
+      repoURL: https://github.com/istio/istio
+      targetRevision: HEAD
+      path: manifests/charts/gateways/istio-egress
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: istio-system
+    syncPolicy:
+      automated:
+        prune: false
+        selfHeal: false
+
+  kiali:
+    namespace: argocd
+    project: default
+    source:
+      repoURL: https://kiali.org/helm-charts
+      targetRevision: 1.79.0
+      chart: kiali-server
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: istio-system
     syncPolicy:
       automated:
         prune: false

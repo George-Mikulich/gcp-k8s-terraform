@@ -1,15 +1,5 @@
-resource "google_compute_firewall" "ssh-rule" {
-  name    = "allow-ssh"
-  network = google_compute_network.vpc.name
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-  source_ranges = ["0.0.0.0/0"]
-}
-
 resource "google_compute_firewall" "icmp-rule" {
-  name    = "allow-icmp-cluster"
+  name    = "${terraform.workspace}-allow-icmp-cluster"
   network = google_compute_network.vpc.name
   allow {
     protocol = "icmp"
@@ -18,7 +8,7 @@ resource "google_compute_firewall" "icmp-rule" {
 }
 
 resource "google_compute_firewall" "tcp-rule" {
-  name    = "allow-tcp-cluster"
+  name    = "${terraform.workspace}-allow-tcp-cluster"
   network = google_compute_network.vpc.name
   allow {
     protocol = "tcp"
@@ -27,7 +17,7 @@ resource "google_compute_firewall" "tcp-rule" {
 }
 
 resource "google_compute_firewall" "icmp-rule2" {
-  name    = "allow-icmp-vpn"
+  name    = "${terraform.workspace}-allow-icmp-vpn"
   network = google_compute_network.vpc-vpn.name
   allow {
     protocol = "icmp"
@@ -36,7 +26,7 @@ resource "google_compute_firewall" "icmp-rule2" {
 }
 
 resource "google_compute_firewall" "tcp-rule2" {
-  name    = "allow-tcp-vpn"
+  name    = "${terraform.workspace}-allow-tcp-vpn"
   network = google_compute_network.vpc-vpn.name
   allow {
     protocol = "tcp"

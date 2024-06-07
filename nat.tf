@@ -1,6 +1,6 @@
 resource "google_compute_router" "router" {
   project = var.project_id
-  name    = "nat-router"
+  name    = "${terraform.workspace}-nat-router"
   network = google_compute_network.vpc.name
   region  = var.region
 }
@@ -11,6 +11,6 @@ module "cloud-nat" {
   project_id                         = var.project_id
   region                             = var.region
   router                             = google_compute_router.router.name
-  name                               = "nat-config"
+  name                               = "${terraform.workspace}-nat-config"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
